@@ -8,49 +8,49 @@ from eralchemy import render_er
 
 Base = declarative_base()
 
-class Planets(Base):
-    __tablename__ = 'planets'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False, unique=True)
-    population = Column(Integer, nullable=True)
-    rel = relationship("People", "FavPlanets")
-
-class People(Base):
-    __tablename__ = 'people'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False, unique=True)
-    homeworld = Column(String(250), ForeignKey("planets.name"))
-    rel = relationship("FavPeople")
-
-class FavPeople(Base):
-    __tablename__ = 'favpeople'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), ForeignKey("people.name"))
-    user = Column(String(250), ForeignKey("username.name"))
-
-class FavPlanets(Base):
-    __tablename__ = 'favplanets'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), ForeignKey("planets.name"))
-    user = Column(String(250), ForeignKey("username.name"))
-
 class User(Base):
     __tablename__ = 'user'
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    email = Column(String(250), nullable=False)
-    username = Column(String(250), nullable=False)
-    password = Column(String(250), nullable=False)
-    rel = relationship("FavPeople", "FavPlanets")
+    username = Column(String(250), nullable=False, unique=True)
+    firstname = Column(String(250), nullable=False, unique=False)
+    lastname = Column(String(250), nullable=False, unique=False)
+    email = Column(String(250), nullable=False, unique=True)
+    rel = relationship("Follower", "Comment", "Post")
+
+class Post(Base):
+    __tablename__ = 'post'
+    # Here we define columns for the table address.
+    # Notice that each column is also a normal Python instance attribute.
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"))
+    rel = relationship("Comment", "Media")
+
+class Follower(Base):
+    __tablename__ = 'follower'
+    # Here we define columns for the table person
+    # Notice that each column is also a normal Python instance attribute.
+    user_from_id = Column(Integer, ForeignKey("user.id"))
+    user_to_id = Column(Integer, ForeignKey("user.id"))
+
+class Comment(Base):
+    __tablename__ = 'comment'
+    # Here we define columns for the table address.
+    # Notice that each column is also a normal Python instance attribute.
+    id = Column(Integer, primary_key=True)
+    comment_text = Column(String(250), nullable=False, unique=False)
+    author_id = Column(Integer, ForeignKey("user.id"))
+    post_id = Column(Integer, ForeignKey("post.id"))
+
+class Media(Base):
+    __tablename__ = 'media'
+    # Here we define columns for the table address.
+    # Notice that each column is also a normal Python instance attribute.
+    id = Column(Integer, primary_key=True)
+    type = Column(enum, unique=True)
+    url = Column(String(250), nullable=False, unique=True)
+    post_id = Column(Integer, ForeignKey("post.id"))
 
     def to_dict(self):
         return {}
